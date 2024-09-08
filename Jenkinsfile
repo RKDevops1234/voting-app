@@ -26,7 +26,7 @@ pipeline {
         stage('Run-vote') {
             steps {
                 // Run the Docker container and expose port 80
-                sh "docker run -p 80:80 -d rajeshtalla0209/votingapp-vote:${VERSION}"
+                sh "docker run -p 90:80 -d rajeshtalla0209/votingapp-vote:${VERSION}"
             }
         }
 
@@ -64,7 +64,7 @@ pipeline {
         stage('Run-result') {
             steps {
                 // Run the Docker container and expose port 80
-                sh "docker run -p 80:80 -d rajeshtalla0209/votingapp-result:${VERSION}"
+                sh "docker run -p 70:80 -d rajeshtalla0209/votingapp-result:${VERSION}"
             }
         }
 
