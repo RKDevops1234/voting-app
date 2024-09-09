@@ -160,9 +160,11 @@ pipeline {
                 //sh "aws codeartifact create-repository --repository my-repo --domain my-domain"
 
                 // Push the Helm chart to AWS CodeArtifact
-                sh "aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --format generic --restrictions '{\"packageVersion\": \"0.1.0\"}'" --package my-chart-0.1.0.tgz"
-        }
-        }
+                //sh "aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --format generic --restrictions '{\"packageVersion\": \"0.1.0\"}'" --package my-chart-0.1.0.tgz"
+                sh """
+                        aws codeartifact ut-package-origin-configuration --repository voting-app --domain petclinic --package my-chart-0.1.0.tgz --format helm --restrictions '{"packageVersion": "0.1.0"}'
+                    """
+                }
         post {
         cleanup {
             sh 'docker image prune -f'
