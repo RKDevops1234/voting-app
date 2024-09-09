@@ -178,11 +178,11 @@ pipeline {
         }
         success {
             echo 'Build succeeded!'
-            // Additional actions on success
+            // Additional actions on success 
         }
         failure {
             echo 'Build failed!'
-             // Clean workspace even on failure, but it's already covered in 'always'
+             //Clean workspace even on failure, but it's already covered in 'always'
         }
          }
   }
