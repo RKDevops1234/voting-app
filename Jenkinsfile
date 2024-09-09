@@ -167,25 +167,23 @@ pipeline {
                 }
         post {
         always {
-            // Always clean up, whether the build succeeds, fails, or is unstable
+            // Clean up Docker images and workspace directory
             sh 'docker image prune -f'
             sh 'docker system prune -f'
             cleanWs()
         }
-        // Optionally, you can also use other post conditions like 'success', 'failure', or 'unstable'
         success {
-            // Actions to perform if the build was successful
-            cleanWs()
+            echo 'Build succeeded!'
+            // Additional actions on success
         }
         failure {
-            // Actions to perform if the build failed
-            cleanWs()
+            echo 'Build failed!'
+            cleanWs()  // Clean workspace even on failure, but it's already covered in 'always'
+        }
+                }
             }
         }
-     }
- }
-
-}
+    }
 }
 
     
