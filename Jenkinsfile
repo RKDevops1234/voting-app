@@ -163,8 +163,14 @@ pipeline {
                 sh "aws codeartifact put-package --repository voting-app --domain petclinic --package my-chart-0.1.0.tgz"
         }
         }
+        post {
+        cleanup {
+            sh 'docker image prune -f'
+            sh 'docker system prune -f'
         }
     }
+     }
+ }
 
 }
 
