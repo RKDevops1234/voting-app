@@ -3,123 +3,61 @@ pipeline {
 
     environment {
         VERSION = '1'
+        DOCKER_HUB_USERNAME = 'rajeshtalla0209'
+        DOCKER_HUB_TOKEN = credentials('DOCKER_HUB_TOKEN')
+        COMPONENTS = ['vote', 'result', 'worker']
+        HELM_CHARTS = ['vote', 'result', 'worker']
+        CODEARTIFACT_DOMAIN = 'petclinic'
+        CODEARTIFACT_REPOSITORY = 'voting-app'
+        CODEARTIFACT_REGION = 'us-east-1'
+        //AWS_ACCESS_KEY_ID = 'your-aws-access-key-id'
+        //AWS_SECRET_ACCESS_KEY = 'your-aws-secret-access-key'
     }
 
     stages {
-        stage('Build-vote') {
+        stage('Login to Docker Hub') {
             steps {
-                // Checkout the code
-                git branch: 'main',
-                    credentialsId: 'your-credentials-id',
-                    url: 'https://github.com/RKDevops1234/votingapp-vote.git'
-
-                // Print the Git repository information
-                sh 'git remote -v'
-                sh 'git branch -a'
-                sh 'git status'
-
-                // Build the Docker image
-                sh "docker build -t rajeshtalla0209/votingapp-vote:${VERSION} ."
+                sh "echo ${DOCKER_HUB_TOKEN} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin https://registry.hub.docker.com"
             }
         }
 
-        stage('Run-vote') {
+        stage('Build and Deploy') {
             steps {
-                // Run the Docker container and expose port 80
-                sh "docker run -p 90:80 -d rajeshtalla0209/votingapp-vote:${VERSION}"
-            }
-        }
+                script {
+                    for (component in COMPONENTS) {
+                        def repositoryUrl = "https://github.com/RKDevops1234/votingapp-${component}.git"
+                        def dockerImageName = "${DOCKER_HUB_USERNAME}/votingapp-${component}:${VERSION}"
 
-        stage('Push to Docker Hub - vote') {
-            steps {
-                withCredentials([string(credentialsId: 'DOCKER_HUB_TOKEN', variable: 'DOCKER_HUB_TOKEN')]) {
-                    // Log in to Docker Hub using a token
-                    sh "echo ${DOCKER_HUB_TOKEN} | docker login -u rajeshtalla0209 --password-stdin https://registry.hub.docker.com"
+                        // Checkout the code
+                        git branch: 'main',
+                            credentialsId: 'github',
+                            url: repositoryUrl
 
-                    // Tag the image with your Docker Hub username and repository name
-                    sh "docker tag rajeshtalla0209/votingapp-vote:${VERSION} rajeshtalla0209/votingapp-vote:${VERSION}"
+                        // Print the Git repository information
+                        sh 'git remote -v'
+                        sh 'git branch -a'
+                        sh 'git status'
 
-                    // Push the image to Docker Hub
-                    sh "docker push rajeshtalla0209/votingapp-vote:${VERSION}"
+                        // Build the Docker image
+                        sh "docker build -t ${dockerImageName} ."
+
+                        // Run the Docker container and expose port 80
+                        def hostPort = component == 'vote' ? 90 : component == 'result' ? 70 : 83
+                        sh "docker run -p ${hostPort}:80 -d ${dockerImageName}"
+
+                        // Push the image to Docker Hub
+                        sh "docker tag ${dockerImageName} ${dockerImageName}"
+                        sh "docker push ${dockerImageName}"
+                    }
                 }
             }
         }
-        stage('Build-result') {
+        stage('Build and Package Helm Chart') {
             steps {
-                // Checkout the code
-                git branch: 'main',
-                    credentialsId: 'github',
-                    url: 'https://github.com/RKDevops1234/votingapp-result.git'
-
-                // Print the Git repository information
-                sh 'git remote -v'
-                sh 'git branch -a'
-                sh 'git status'
-
-                // Build the Docker image
-                sh "docker build -t rajeshtalla0209/votingapp-result:${VERSION} ."
+                // Build and package your Helm chart here
+                sh 'helm package db'
             }
-        }
-
-        stage('Run-result') {
-            steps {
-                // Run the Docker container and expose port 80
-                sh "docker run -p 70:80 -d rajeshtalla0209/votingapp-result:${VERSION}"
-            }
-        }
-
-        stage('Push to Docker Hub - result') {
-            steps {
-                withCredentials([string(credentialsId: 'DOCKER_HUB_TOKEN', variable: 'DOCKER_HUB_TOKEN')]) {
-                    // Log in to Docker Hub using a token
-                    sh "echo ${DOCKER_HUB_TOKEN} | docker login -u rajeshtalla0209 --password-stdin https://registry.hub.docker.com"
-
-                    // Tag the image with your Docker Hub username and repository name
-                    sh "docker tag rajeshtalla0209/votingapp-result:${VERSION} rajeshtalla0209/votingapp-result:${VERSION}"
-
-                    // Push the image to Docker Hub
-                    sh "docker push rajeshtalla0209/votingapp-result:${VERSION}"
-                }
-            }
-        }
-        stage('Build-worker') {
-            steps {
-                // Checkout the code
-                git branch: 'main',
-                    credentialsId: 'github',
-                    url: 'https://github.com/RKDevops1234/votingapp-worker.git'
-
-                // Print the Git repository information
-                sh 'git remote -v'
-                sh 'git branch -a'
-                sh 'git status'
-
-                // Build the Docker image
-                sh "docker build -t rajeshtalla0209/votingapp-worker:${VERSION} ."
-            }
-        }
-
-        stage('Run-worker') {
-            steps {
-                // Run the Docker container and expose port 80
-                sh "docker run -p 83:80 -d rajeshtalla0209/votingapp-worker:${VERSION}"
-            }
-        }
-
-        stage('Push to Docker Hub-worker') {
-            steps {
-                withCredentials([string(credentialsId: 'DOCKER_HUB_TOKEN', variable: 'DOCKER_HUB_TOKEN')]) {
-                    // Log in to Docker Hub using a token
-                    sh "echo ${DOCKER_HUB_TOKEN} | docker login -u rajeshtalla0209 --password-stdin https://registry.hub.docker.com"
-
-                    // Tag the image with your Docker Hub username and repository name
-                    sh "docker tag rajeshtalla0209/votingapp-worker:${VERSION} rajeshtalla0209/votingapp-worker:${VERSION}"
-
-                    // Push the image to Docker Hub
-                    sh "docker push rajeshtalla0209/votingapp-worker:${VERSION}"
-                }
-            }
-        }
+        }        
     }
-}
-// final success one 
+}   
+       

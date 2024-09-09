@@ -1,0 +1,149 @@
+pipeline {
+    agent any
+
+    environment {
+        VERSION = '1'
+        CODEARTIFACT_DOMAIN = 'your-codeartifact-domain'
+        CODEARTIFACT_REPOSITORY = 'your-codeartifact-repository'
+        CODEARTIFACT_REGION = 'your-codeartifact-region'
+        //AWS_ACCESS_KEY_ID = 'your-aws-access-key-id'
+        //AWS_SECRET_ACCESS_KEY = 'your-aws-secret-access-key'
+    }
+
+    stages {
+        stage('Build-vote') {
+            steps {
+                // Checkout the code
+                git branch: 'main',
+                    credentialsId: 'your-credentials-id',
+                    url: 'https://github.com/RKDevops1234/votingapp-vote.git'
+
+                // Print the Git repository information
+                sh 'git remote -v'
+                sh 'git branch -a'
+                sh 'git status'
+
+                // Build the Docker image
+                sh "docker build -t rajeshtalla0209/votingapp-vote:${VERSION} ."
+            }
+        }
+
+        stage('Run-vote') {
+            steps {
+                // Run the Docker container and expose port 80
+                sh "docker run -p 90:80 -d rajeshtalla0209/votingapp-vote:${VERSION}"
+            }
+        }
+
+        stage('Push to Docker Hub - vote') {
+            steps {
+                withCredentials([string(credentialsId: 'DOCKER_HUB_TOKEN', variable: 'DOCKER_HUB_TOKEN')]) {
+                    // Log in to Docker Hub using a token
+                    sh "echo ${DOCKER_HUB_TOKEN} | docker login -u rajeshtalla0209 --password-stdin https://registry.hub.docker.com"
+
+                    // Tag the image with your Docker Hub username and repository name
+                    sh "docker tag rajeshtalla0209/votingapp-vote:${VERSION} rajeshtalla0209/votingapp-vote:${VERSION}"
+
+                    // Push the image to Docker Hub
+                    sh "docker push rajeshtalla0209/votingapp-vote:${VERSION}"
+                }
+            }
+        }
+        stage('Build-result') {
+            steps {
+                // Checkout the code
+                git branch: 'main',
+                    credentialsId: 'github',
+                    url: 'https://github.com/RKDevops1234/votingapp-result.git'
+
+                // Print the Git repository information
+                sh 'git remote -v'
+                sh 'git branch -a'
+                sh 'git status'
+
+                // Build the Docker image
+                sh "docker build -t rajeshtalla0209/votingapp-result:${VERSION} ."
+            }
+        }
+
+        stage('Run-result') {
+            steps {
+                // Run the Docker container and expose port 80
+                sh "docker run -p 70:80 -d rajeshtalla0209/votingapp-result:${VERSION}"
+            }
+        }
+
+        stage('Push to Docker Hub - result') {
+            steps {
+                withCredentials([string(credentialsId: 'DOCKER_HUB_TOKEN', variable: 'DOCKER_HUB_TOKEN')]) {
+                    // Log in to Docker Hub using a token
+                    sh "echo ${DOCKER_HUB_TOKEN} | docker login -u rajeshtalla0209 --password-stdin https://registry.hub.docker.com"
+
+                    // Tag the image with your Docker Hub username and repository name
+                    sh "docker tag rajeshtalla0209/votingapp-result:${VERSION} rajeshtalla0209/votingapp-result:${VERSION}"
+
+                    // Push the image to Docker Hub
+                    sh "docker push rajeshtalla0209/votingapp-result:${VERSION}"
+                }
+            }
+        }
+        stage('Build-worker') {
+            steps {
+                // Checkout the code
+                git branch: 'main',
+                    credentialsId: 'github',
+                    url: 'https://github.com/RKDevops1234/votingapp-worker.git'
+
+                // Print the Git repository information
+                sh 'git remote -v'
+                sh 'git branch -a'
+                sh 'git status'
+
+                // Build the Docker image
+                sh "docker build -t rajeshtalla0209/votingapp-worker:${VERSION} ."
+            }
+        }
+
+        stage('Run-worker') {
+            steps {
+                // Run the Docker container and expose port 80
+                sh "docker run -p 83:80 -d rajeshtalla0209/votingapp-worker:${VERSION}"
+            }
+        }
+
+        stage('Push to Docker Hub-worker') {
+            steps {
+                withCredentials([string(credentialsId: 'DOCKER_HUB_TOKEN', variable: 'DOCKER_HUB_TOKEN')]) {
+                    // Log in to Docker Hub using a token
+                    sh "echo ${DOCKER_HUB_TOKEN} | docker login -u rajeshtalla0209 --password-stdin https://registry.hub.docker.com"
+
+                    // Tag the image with your Docker Hub username and repository name
+                    sh "docker tag rajeshtalla0209/votingapp-worker:${VERSION} rajeshtalla0209/votingapp-worker:${VERSION}"
+
+                    // Push the image to Docker Hub
+                    sh "docker push rajeshtalla0209/votingapp-worker:${VERSION}"
+                }
+            }
+        }
+        stage('Build and Package Helm Chart') {
+            steps {
+                // Build and package your Helm chart here
+            }
+        }
+
+        stage('Push Helm Chart to CodeArtifact') {
+            steps {
+                withAWSCodeArtifact(
+                    domain: CODEARTIFACT_DOMAIN,
+                    repository: CODEARTIFACT_REPOSITORY,
+                    region: CODEARTIFACT_REGION,
+                    credentialsId: 'your-aws-credentials-id'
+                ) {
+                    // Push your Helm chart to CodeArtifact here
+                    sh 'aws codeartifact put-package --domain ${CODEARTIFACT_DOMAIN} --repository ${CODEARTIFACT_REPOSITORY} --package my-helm-chart --version 1.0.0 --format helm'
+                }
+            }
+        }
+    }
+}
+// final success one 
