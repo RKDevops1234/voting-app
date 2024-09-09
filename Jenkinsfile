@@ -29,7 +29,7 @@ pipeline {
                 sh "docker run -p 90:80 -d --name votingapp-vote rajeshtalla0209/votingapp-vote:${VERSION}"
             }
         }
-        stage('Stop Docker Container') {
+        stage('Stop Docker Container vote') {
             steps {
                 sh 'docker ps -aq --filter "name=votingapp-vote" | xargs docker stop'
             }
@@ -71,7 +71,7 @@ pipeline {
                 sh "docker run -p 70:80 -d --name votingapp-result rajeshtalla0209/votingapp-result:${VERSION}"
             }
         }
-        stage('Stop Docker Container') {
+        stage('Stop Docker Container- result') {
             steps {
                 sh 'docker ps -aq --filter "name=votingapp-result" | xargs docker stop'
             }
@@ -115,7 +115,7 @@ pipeline {
             }
         }
 
-        stage('Stop Docker Container') {
+        stage('Stop Docker Container- worker') {
             steps {
                 sh 'docker ps -aq --filter "name=votingapp-worker" | xargs docker stop'
             }
