@@ -162,7 +162,7 @@ pipeline {
                 // Push the Helm chart to AWS CodeArtifact
                 //sh "aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --format generic --restrictions '{\"packageVersion\": \"0.1.0\"}'" --package my-chart-0.1.0.tgz"
                 sh """
-                        aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --package my-chart-0.1.0.tgz --format helm --restrictions '{"publish": true}'
+                        aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --package my-chart-0.1.0.tgz --format helm --restrictions '{"publish": true,"upstream": "false"}'
                     """
                 }
         post {
