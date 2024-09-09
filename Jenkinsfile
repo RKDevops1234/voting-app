@@ -121,10 +121,14 @@ pipeline {
             }
         }
         
-        stage('Build and Package Helm Chart') {
+        stage('Clone Repository') {
             steps {
-                // Build and package your Helm chart here
-                sh 'helm package db'
+                sh 'git clone https://github.com/RKDevops1234/voting-app.git'
+            }
+        }
+        stage('Package Helm chart') {
+            steps {
+                sh 'cd voting-app/db/charts && helm package .'
             }
         }        
     }
