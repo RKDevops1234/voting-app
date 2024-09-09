@@ -145,7 +145,25 @@ pipeline {
             steps {
                 sh 'cd voting-app/db/charts && helm package .'
             }
-        }        
+        }
+        
+        stage('Push Helm chart to AWS CodeArtifact') {
+            steps {
+                withAWS (credentialsId: 'aws-credentials-id') {
+                // Configure the AWS CLI
+                sh "aws configure set default.region us-east-1"
+
+                // Create a repository in AWS CodeArtifact
+                //sh "aws codeartifact create-repository --repository my-repo --domain my-domain"
+
+                // Push the Helm chart to AWS CodeArtifact
+                sh "aws codeartifact put-package --repository voting-app --domain petclinic --package my-chart-0.1.0.tgz"
+        }
+        }
+        }
     }
-}   
+
+}
+
+    
        
