@@ -167,6 +167,7 @@ pipeline {
         cleanup {
             sh 'docker image prune -f'
             sh 'docker system prune -f'
+            cleanWs()
         }
     }
      }
