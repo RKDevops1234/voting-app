@@ -26,7 +26,7 @@ pipeline {
         stage('Run-vote') {
             steps {
                 // Run the Docker container and expose port 80
-                sh "docker rm votingapp-vote"
+                sh 'docker rm /votingapp-vote || true'
                 sh "docker run -p 90:80 -d --name votingapp-vote rajeshtalla0209/votingapp-vote:${VERSION}"
             }
         }
