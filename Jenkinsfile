@@ -162,10 +162,12 @@ pipeline {
                 // Push the Helm chart to AWS CodeArtifact
                 //sh "aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --format generic --restrictions '{\"packageVersion\": \"0.1.0\"}'" --package my-chart-0.1.0.tgz"
                 sh """
-                        aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --package my-chart-0.1.0.tgz --format helm --restrictions '{"publish": "true","upstream": "false"}'
+                        aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --package my-chart-0.1.0.tgz --format generic --restrictions '{"publish": "true","upstream": "false"}'
                     """
                 }
             }
+        }
+    }  
         post {
         always {
             // Clean up Docker images and workspace directory
@@ -182,10 +184,9 @@ pipeline {
             echo 'Build failed!'
             cleanWs()  // Clean workspace even on failure, but it's already covered in 'always'
         }
-                }
-            }
-        }
-    }
+         }
+  }
+        
 
 
     
