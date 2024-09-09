@@ -149,7 +149,7 @@ pipeline {
         
         stage('Push Helm chart to AWS CodeArtifact') {
             steps {
-                withAWS (credentialsId: 'aws-credentials-id') {
+                withAWS (credentials: 'aws-credentials-id') {
                 // Configure the AWS CLI
                 sh "aws configure set default.region us-east-1"
 
