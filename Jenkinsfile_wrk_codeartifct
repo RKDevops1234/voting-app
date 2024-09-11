@@ -3,10 +3,6 @@ pipeline {
 
     environment {
         VERSION = '1'
-        S3_BUCKET = 'rajtal-votingapp'
-        S3_PATH = 'helm-charts'
-        AWS_REGION = 'us-east-1' // Specify your AWS region here
-        CHART_VERSION = "1.1.2"
     }
 
     stages {
@@ -154,23 +150,20 @@ pipeline {
             }
         }
         
-        stage('Package Helm Chart') {
+        stage('Push Helm chart to AWS CodeArtifact') {
             steps {
-                dir('voting-app/db/charts') {
-                    sh 'helm package . --version ${CHART_VERSION}'
-                }
-            }
-        }
+                withAWS (credentials: 'aws-credentials-id') {
+                // Configure the AWS CLI
+                sh "aws configure set default.region us-east-1"
 
-        stage('Upload Helm Chart to S3') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
-                    script {
-                        // List the Helm chart file
-                        def chartFile = sh(script: 'ls voting-app/db/charts/*.tgz', returnStdout: true).trim()
-                        // Upload the Helm chart to S3
-                        sh "aws s3 cp ${chartFile} s3://${S3_BUCKET}/${S3_PATH}/ --region ${AWS_REGION}"
-                    }
+                // Create a repository in AWS CodeArtifact
+                //sh "aws codeartifact create-repository --repository my-repo --domain my-domain"
+
+                // Push the Helm chart to AWS CodeArtifact
+                //sh "aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --format generic --restrictions '{\"packageVersion\": \"0.1.0\"}'" --package my-chart-0.1.0.tgz"
+                sh """
+                        aws codeartifact put-package-origin-configuration --repository voting-app --domain petclinic --package db-1.0.0.tgz --format generic --namespace voting-app --restrictions '{"publish": "ALLOW","upstream": "BLOCK"}'
+                    """
                 }
             }
         }
