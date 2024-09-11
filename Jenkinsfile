@@ -163,27 +163,26 @@ pipeline {
         }
 
         stage('Upload Helm Chart to S3') {
-            stage('Upload Helm Chart to S3') {
-    steps {
-        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
-            script {
-                // List all Helm chart files
-                def chartFiles = sh(script: 'ls voting-app/db/charts/*.tgz', returnStdout: true).trim().split('\n')
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
+                    script {
+                    // List all Helm chart files
+                    def chartFiles = sh(script: 'ls voting-app/db/charts/*.tgz', returnStdout: true).trim().split('\n')
                 
-                // Debug output to verify chartFiles
-                echo "Chart files found: ${chartFiles.join(', ')}"
+                    // Debug output to verify chartFiles
+                    echo "Chart files found: ${chartFiles.join(', ')}"
                 
-                // Upload each Helm chart file to S3
-                chartFiles.each { chartFile ->
-                    echo "Uploading ${chartFile} to S3"
-                    sh """
-                        aws s3 cp "${chartFile}" s3://${S3_BUCKET}/${S3_PATH}/ --region ${AWS_REGION}
-                    """
+                    // Upload each Helm chart file to S3
+                        chartFiles.each { chartFile ->
+                        echo "Uploading ${chartFile} to S3"
+                        sh """
+                            aws s3 cp "${chartFile}" s3://${S3_BUCKET}/${S3_PATH}/ --region ${AWS_REGION}
+                        """
+                    }
                 }
             }
         }
     }
-}
 
         }
     }  
