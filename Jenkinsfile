@@ -159,7 +159,7 @@ pipeline {
                 }
             }
         }
-        }
+        
         stage('Upload Helm Chart to S3') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials-id']]) {
@@ -216,7 +216,7 @@ pipeline {
         }
          }
   }
-     
+}
 // Success one
 
     
