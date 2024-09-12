@@ -151,12 +151,15 @@ pipeline {
         stage('Package Helm chart') {
             steps {
                 sh 'cd voting-app/db/charts && helm package .'
+                sh 'cd voting-app/redis/charts && helm package .'
             }
         }
         
         stage('Package Helm Chart') {
             steps {
                 dir('voting-app/db/charts') {
+                    sh 'helm package . --version ${CHART_VERSION}'
+                dir('voting-app/redis/charts') {
                     sh 'helm package . --version ${CHART_VERSION}'
                 }
             }
@@ -180,11 +183,27 @@ pipeline {
                         """
                     }
                 }
+                script {
+                    // List all Helm chart files
+                    def chartFiles = sh(script: 'ls voting-app/redis/charts/*.tgz', returnStdout: true).trim().split('\n')
+                
+                    // Debug output to verify chartFiles
+                    echo "Chart files found: ${chartFiles.join(', ')}"
+                
+                    // Upload each Helm chart file to S3
+                        chartFiles.each { chartFile ->
+                        echo "Uploading ${chartFile} to S3"
+                        sh """
+                            aws s3 cp "${chartFile}" s3://${S3_BUCKET}/${S3_PATH}/ --region ${AWS_REGION}
+                        """
+                    }
+                }
             }
         
             }
         }
     }  
+
         post {
         always {
             // Clean up Docker images and workspace directory
@@ -203,7 +222,7 @@ pipeline {
         }
          }
   }
-        
+}     
 // Success one
 
     

@@ -1,0 +1,8 @@
+# values.yaml
+
+# Default values for the chart
+replicaCount: 1
+image:
+  repository: my-voting-app
+  tag: latest
+
