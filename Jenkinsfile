@@ -148,13 +148,7 @@ pipeline {
                 sh 'git clone https://github.com/RKDevops1234/voting-app.git'
             }
         }
-        stage('Package Helm chart') {
-            steps {
-                sh 'cd voting-app/db/charts && helm package .'
-                sh 'cd voting-app/redis/charts && helm package .'
-            }
-        }
-        
+               
         stage('Package Helm Chart') {
             steps {
                 dir('voting-app/db/charts') {
