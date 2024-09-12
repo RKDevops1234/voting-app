@@ -197,8 +197,7 @@ pipeline {
         
             }
         }
-    }  
-
+    
         post {
         always {
             // Clean up Docker images and workspace directory
