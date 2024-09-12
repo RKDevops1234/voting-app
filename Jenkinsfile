@@ -157,6 +157,12 @@ pipeline {
                 dir('voting-app/redis/charts') {
                     sh 'helm package . --version ${CHART_VERSION}'
                 }
+                dir('voting-app/vote-h/charts') {
+                    sh 'helm package . --version ${CHART_VERSION}'
+                }
+                dir('voting-app/worker-h/charts') {
+                    sh 'helm package . --version ${CHART_VERSION}'
+                }
             }
         }
         
@@ -193,11 +199,41 @@ pipeline {
                         """
                     }
                 }
+                script {
+                    // List all Helm chart files
+                    def chartFiles = sh(script: 'ls voting-app/vote-h/charts/*.tgz', returnStdout: true).trim().split('\n')
+                
+                    // Debug output to verify chartFiles
+                    echo "Chart files found: ${chartFiles.join(', ')}"
+                
+                    // Upload each Helm chart file to S3
+                        chartFiles.each { chartFile ->
+                        echo "Uploading ${chartFile} to S3"
+                        sh """
+                            aws s3 cp "${chartFile}" s3://${S3_BUCKET}/${S3_PATH}/ --region ${AWS_REGION}
+                        """
+                    }
+                }
+                script {
+                    // List all Helm chart files
+                    def chartFiles = sh(script: 'ls voting-app/worker-h/charts/*.tgz', returnStdout: true).trim().split('\n')
+                
+                    // Debug output to verify chartFiles
+                    echo "Chart files found: ${chartFiles.join(', ')}"
+                
+                    // Upload each Helm chart file to S3
+                        chartFiles.each { chartFile ->
+                        echo "Uploading ${chartFile} to S3"
+                        sh """
+                            aws s3 cp "${chartFile}" s3://${S3_BUCKET}/${S3_PATH}/ --region ${AWS_REGION}
+                        """
+                    }
+                }
             }
-        
+            }
             }
         }
-    }
+    
         post {
         always {
             // Clean up Docker images and workspace directory
