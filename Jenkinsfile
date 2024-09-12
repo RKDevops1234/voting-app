@@ -153,6 +153,7 @@ pipeline {
             steps {
                 dir('voting-app/db/charts') {
                     sh 'helm package . --version ${CHART_VERSION}'
+                }
                 dir('voting-app/redis/charts') {
                     sh 'helm package . --version ${CHART_VERSION}'
                 }
