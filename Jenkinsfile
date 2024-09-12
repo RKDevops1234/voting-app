@@ -197,7 +197,7 @@ pipeline {
         
             }
         }
-    
+    }
         post {
         always {
             // Clean up Docker images and workspace directory
@@ -215,8 +215,8 @@ pipeline {
              //Clean workspace even on failure, but it's already covered in 'always'
         }
          }
-  }
-}
+ }
+ 
 // Success one
 
     
