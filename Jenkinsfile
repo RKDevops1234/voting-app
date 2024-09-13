@@ -11,7 +11,7 @@ pipeline {
     }
 
     stages {
-        stage('Build-vote') {
+        /*stage('Build-vote') {
             steps {
                 // Checkout the code
                 git branch: 'main',
@@ -143,7 +143,7 @@ pipeline {
                 }
             }
         }
-        
+        */
         stage('Clone Repository') {
             steps {
                 sh 'git clone https://github.com/RKDevops1234/voting-app.git'
@@ -255,6 +255,7 @@ pipeline {
  }
 
 // Success one after redis
+//commented build job
 
     
        
