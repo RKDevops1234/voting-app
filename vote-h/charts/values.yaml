@@ -3,6 +3,6 @@
 # Default values for the chart
 replicaCount: 1
 image:
-  repository: my-voting-app
-  tag: latest
-
+  repository: rajeshtalla0209/votingapp-worker
+  tag: 1
+name: vote

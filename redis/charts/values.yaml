@@ -5,4 +5,5 @@ replicaCount: 1
 image:
   repository: my-voting-app
   tag: latest
+name: redis
 
